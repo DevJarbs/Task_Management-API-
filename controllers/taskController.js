@@ -58,13 +58,20 @@ export const getTaskById = async (req,res)=>{
 
 export const searchByTaskByTitle = async(req,res)=>{
     try{
-        const { q } = req.query;
-        const task = await taskModel.find({
-            $or: [
-                { title: {$regex: q, $options: "i"} },
-                { description: {$regex: q, $options: "i"} }
-            ]
-        });
+        const { q, status } = req.query;
+        const filter = {};
+        
+        if(q){
+            filter.$or= [
+                { title: { $regex: q, $options: "i" } },
+                { description: { $regex: q, $options: "i" } }
+            ];
+        }
+        if(status){
+           filter.status = status;
+        }
+        const task = await taskModel.find(filter);
+
         res.json(task);
     }catch(e){
         res.status(500).json({ message: e.message });
